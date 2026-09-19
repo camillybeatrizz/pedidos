@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -26,6 +28,11 @@ class CriarPedidoServiceTest {
         public Pedido salvar(Pedido pedido) {
             salvos.add(pedido);
             return pedido;
+        }
+
+        @Override
+        public Optional<Pedido> buscarPorId(UUID id) {
+            return salvos.stream().filter(pedido -> pedido.id().equals(id)).findFirst();
         }
     }
 
@@ -70,7 +77,17 @@ class CriarPedidoServiceTest {
     @Test
     void criar_devolveExatamenteOQuePedidosSalvarRetornou() {
         Pedido substituto = Pedido.novo();
-        Pedidos pedidosQueTrocaOResultado = pedido -> substituto;
+        Pedidos pedidosQueTrocaOResultado = new Pedidos() {
+            @Override
+            public Pedido salvar(Pedido pedido) {
+                return substituto;
+            }
+
+            @Override
+            public Optional<Pedido> buscarPorId(UUID id) {
+                return Optional.of(substituto);
+            }
+        };
         CriarPedidoService service = new CriarPedidoService(pedidosQueTrocaOResultado);
 
         Pedido resultado = service.criar("c-1", List.of(CAFE_500));
