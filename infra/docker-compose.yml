@@ -16,6 +16,25 @@ services:
       timeout: 5s
       retries: 5
 
+  rabbitmq:
+    image: rabbitmq:4.1-management
+    container_name: apipedidos-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: aula
+      RABBITMQ_DEFAULT_PASS: aula-local
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    volumes:
+      - pedidos_rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 volumes:
   pedidos_pg_data:
     name: pedidos_pg_data
+  pedidos_rabbitmq_data:
+    name: pedidos_rabbitmq_data
